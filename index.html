@@ -1,4 +1,113 @@
 <html>
-Hello this is CS3300 Project 1
-	
+<head>
+<title>INFO 3300 - Data-driven Web Applications</title>
+<link href="https://fonts.googleapis.com/css?family=Poppins" rel="stylesheet">
+<script src="https://d3js.org/d3.v4.min.js"></script>
+<style>
+body { font-family: 'Poppins'; }
+</style>
+</head>
+<body>
+<div id="content" align="center" style="height: 100%"></div>
+	<script>
+		var height = document.getElementById("content").clientHeight;
+		var width = document.getElementById("content").clientWidth;
+		var centerX = width / 2;
+		var centerY = height / 2;
+		var graphRadius = height * 0.4;
+		var svg = d3.selectAll("#content").append("svg")
+		.attr("height", height)
+		.attr("width", width);
+
+		var timeline = svg.append("circle")
+		.attr("r", graphRadius)
+		.attr("cx", centerX)
+		.attr("cy", centerY)
+		.attr("stroke", "black")
+		.attr("stroke-width", 4)
+		.style("fill", "none");
+
+		var arc = d3.arc()
+    .innerRadius(graphRadius - 2)
+    .outerRadius(graphRadius + 2)
+    .startAngle(38 * Math.PI / 180)
+    .endAngle(17 * Math.PI / 180);
+		svg.append("path")
+		.attr("d", arc)
+		.attr("stroke", "white")
+		.attr("stroke-width", 10)
+		.attr("transform", "translate(" + centerX + ", " + centerY + ")");
+
+		var pre1900Scale = d3.scaleLinear().domain([1200, 1899]).range([75, 204]);
+		var mainScale = d3.scaleLinear().domain([1900, 1999]).range([205, 334]);
+		var post2000Scale = d3.scaleLinear().domain([2000, 2500]).range([-25, 50]);
+
+		function scaledYear (year) {
+			if (year >= 1200 && year < 1900) {
+				return pre1900Scale(year);
+			} else if (year >= 1900 && year < 2000) {
+				return mainScale(year);
+			} else if (year >= 2000 && year <= 2500) {
+				return post2000Scale(year);
+			} else {
+				console.log("Year is invalid");
+			}
+		}
+
+		function plotAngleRadius (angle, radius) {
+			var x = (radius * Math.cos(angle * Math.PI / 180)) + centerX;
+			var y = centerY - (radius * Math.sin(angle * Math.PI / 180));
+			return [x, y];
+		}
+
+		function plotYear (year) {
+			return plotAngleRadius(scaledYear(year), graphRadius);
+		}
+
+		function drawLabels(y, dist, size) {
+			svg.append("text").text(y)
+			.attr("x", plotAngleRadius(scaledYear(y), graphRadius + dist)[0])
+			.attr("y", plotAngleRadius(scaledYear(y), graphRadius + dist)[1])
+			.attr("text-anchor", "middle")
+			.attr("alignment-baseline", "middle")
+			.style("font-size", size);
+		}
+
+		function drawTick (y, size) {
+			var inner = plotAngleRadius(scaledYear(y), graphRadius - size);
+			var outer = plotAngleRadius(scaledYear(y), graphRadius + size);
+
+			var tickFunct = d3.line()
+			.x(function (d) { return d[0]; })
+			.y(function (d) { return d[1]; });
+			var tick = tickFunct([inner, outer]);
+
+			svg.append("path")
+			.attr("d", tick)
+			.attr("stroke", "black")
+			.attr("stroke-width", 2)
+			.attr("fill", "none");
+		}
+
+		function drawTicks () {
+			for (var y = 1200; y <= 2500; y += 100) {
+				drawTick(y, 15);
+				drawLabels(y, 35, 20);
+			}
+			for (var y = 1200; y < 1900; y += 25) {
+				drawTick(y, 6);
+			}
+			for (var y = 2000; y <= 2500; y += 25) {
+				drawTick(y, 6);
+			}
+			for (var y = 1910; y <= 1990; y += 10) {
+				drawTick(y, 6);
+				drawLabels(y, 30, 13);
+			}
+		}
+		drawTicks();
+
+	</script>
+</svg>
+</body>
 </html>
