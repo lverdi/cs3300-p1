@@ -21,6 +21,7 @@ body { font-family: 'Poppins'; background-color: #fcfdff;}
 		var centerX = width / 2;
 		var centerY = height / 2;
 		var graphRadius = height * 0.4;
+		var rawData;
 
 		var colors = ["#EF2D56", "#ED7D3A", "#345995", "#9B1D20", "#363537", "#434371", "#0FA3B1", "#3BB273"];
 		var methodsOfTravel = ["Mystery Force", "Machine/Tech", "Car", "Alien Tech", "Unknown", "Mind Power", "Freezing", "Slingshot"];
@@ -32,6 +33,17 @@ body { font-family: 'Poppins'; background-color: #fcfdff;}
 		var pre1900Scale = d3.scaleLinear().domain([1200, 1899]).range([75, 204]);
 		var mainScale = d3.scaleLinear().domain([1900, 1999]).range([205, 334]);
 		var post2000Scale = d3.scaleLinear().domain([2000, 2500]).range([-25, 50]);
+
+		drawTitle();
+		drawColorKey();
+		drawTimeline();
+		drawTicks();
+
+		d3.tsv("Time_Travel_Plots_TSV.txt", parseLine, function (error, data) {
+			rawData = data;
+			displayData(rawData);
+
+		})
 
 		function drawTimeline() {
 			var timeline = svg.append("circle")
@@ -142,41 +154,9 @@ body { font-family: 'Poppins'; background-color: #fcfdff;}
 			}
 		}
 
-		function drawColorKey() {
-			var keyWidth = document.getElementById("key").clientWidth;
-			var keyHeight = document.getElementById("key").clientHeight;
-			var lineWidth = 3;
+		function drawColorsAndLabels(key, lineWidth, keyWidth, keyHeight) {
 			var widthCounter = .1;
 			var counter = 0;
-
-			var key = d3.selectAll("#key").append("svg")
-				.attr("height", keyHeight)
-				.attr("width", keyWidth);
-
-			key.append("text")
-				.text("TRAVEL BY...")
-				.attr("x", keyWidth/2)
-				.attr("y", .15*keyHeight)
-				.attr("text-anchor", "middle")
-				.attr("alignment-baseline", "middle")
-				.style("font-size", 20);
-
-			key.append("rect")
-				.attr("x", 1)
-				.attr("y", 1)
-				.attr("height", keyHeight - lineWidth)
-				.attr("width", keyWidth - lineWidth)
-				.style("fill", "none")
-				.style("stroke", "black")
-				.style("stroke-width", lineWidth);
-
-			key.append("text")
-				.text("Line Thickness is Proportional to IMDB Rating Out Of 10")
-				.attr("x", keyWidth/2)
-				.attr("y", .93*keyHeight)
-				.attr("text-anchor", "middle")
-				.attr("alignment-baseline", "middle")
-				.style("font-size", 15);
 
 			methodsOfTravel.forEach(function (method) {
 				if (counter < 4) {
@@ -213,6 +193,44 @@ body { font-family: 'Poppins'; background-color: #fcfdff;}
 				}
 				counter += 1;
 			});
+
+		}
+
+		function drawColorKey() {
+			var keyWidth = document.getElementById("key").clientWidth;
+			var keyHeight = document.getElementById("key").clientHeight;
+			var lineWidth = 3;
+
+			var key = d3.selectAll("#key").append("svg")
+				.attr("height", keyHeight)
+				.attr("width", keyWidth);
+
+			key.append("text")
+				.text("TRAVEL BY...")
+				.attr("x", keyWidth/2)
+				.attr("y", .15*keyHeight)
+				.attr("text-anchor", "middle")
+				.attr("alignment-baseline", "middle")
+				.style("font-size", 20);
+
+			key.append("rect")
+				.attr("x", 1)
+				.attr("y", 1)
+				.attr("height", keyHeight - lineWidth)
+				.attr("width", keyWidth - lineWidth)
+				.style("fill", "none")
+				.style("stroke", "black")
+				.style("stroke-width", lineWidth);
+
+			key.append("text")
+				.text("Line Thickness is Proportional to IMDB Rating Out Of 10")
+				.attr("x", keyWidth/2)
+				.attr("y", .93*keyHeight)
+				.attr("text-anchor", "middle")
+				.attr("alignment-baseline", "middle")
+				.style("font-size", 15);
+
+			drawColorsAndLabels(key, lineWidth, keyWidth, keyHeight);
 		}
 
 		function getColor(input) {
@@ -243,7 +261,6 @@ body { font-family: 'Poppins'; background-color: #fcfdff;}
 			}
 		}
 
-
 		function parseLine (line) {
 			line.From = Number(line.From);
 			line.To = Number(line.To);
@@ -253,12 +270,11 @@ body { font-family: 'Poppins'; background-color: #fcfdff;}
 		}
 
 		function displayData(data) {
-			var line;
 			var x1;
 			var x1;
 			var y1;
 			var y2;
-
+			var path;
 			data.forEach(function (y) {
 				x1 = plotAngleRadius(scaledYear(y.From), graphRadius)[0];
 				y1 = plotAngleRadius(scaledYear(y.From), graphRadius)[1];
@@ -266,7 +282,7 @@ body { font-family: 'Poppins'; background-color: #fcfdff;}
 				y2 = plotAngleRadius(scaledYear(y.To), graphRadius)[1];
 				if (x1 == 0 || y1 == 0 || x2 == 0 || y2 == 0) { return }
 				else {
-					var path = d3.path();
+					path = d3.path();
 					path.moveTo(x1,y1);
 					path.quadraticCurveTo((x1+x2)/2.5,(y1+y2)/2.5,x2,y2);
 					data = [[x1, y1], [x2, y2]];
@@ -279,19 +295,6 @@ body { font-family: 'Poppins'; background-color: #fcfdff;}
 				}
 			})
 		}
-
-		drawTitle();
-		drawColorKey();
-		drawTimeline();
-		drawTicks();
-
-		var rawData;
-
-		d3.tsv("Time_Travel_Plots_TSV.txt", parseLine, function (error, data) {
-			rawData = data;
-			displayData(rawData);
-
-		})
 
 	</script>
 </svg>
