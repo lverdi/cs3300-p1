@@ -18,6 +18,9 @@ body { font-family: 'Poppins'; }
 		var centerY = height / 2;
 		var graphRadius = height * 0.4;
 
+		var colors = ["red", "yellow", "blue", "pink", "black", "purple", "green", "orange"];
+		var methodsOfTravel = ["Mystery Force", "Machine/Tech", "Automobile", "Alien Tech", "Unknown", "Power of Mind", "Freezing", "Slingshot"];
+
 		var svg = d3.selectAll("#content").append("svg")
 			.attr("height", height)
 			.attr("width", width);
@@ -133,7 +136,8 @@ body { font-family: 'Poppins'; }
 			var keyWidth = document.getElementById("key").clientWidth;
 			var keyHeight = document.getElementById("key").clientHeight;
 			var lineWidth = 3;
-			var containerMarginFactor = 5;
+			var widthCounter = .1;	
+			var counter = 0;
 
 			var key = d3.selectAll("#key").append("svg")
 				.attr("height", keyHeight)
@@ -150,134 +154,47 @@ body { font-family: 'Poppins'; }
 			key.append("rect")
 				.attr("x", 1)
 				.attr("y", 1)
-				.attr("height", keyHeight - 2)
-				.attr("width", keyWidth - 2)
+				.attr("height", keyHeight - lineWidth)
+				.attr("width", keyWidth - lineWidth)
 				.style("fill", "none")
 				.style("stroke", "black")
 				.style("stroke-width", lineWidth);
 
-			key.append("rect")
-				.attr("x", .1*keyWidth)
-				.attr("y", .3*keyHeight)
-				.attr("height", .2*keyHeight)
-				.attr("width", .05*keyWidth)
-				.style("fill", "red")
-				.style("stroke", "black")
-				.style("stroke-width", lineWidth);
-
-			key.append("text")
-				.text("Mystery Force")
-				.attr("x", .17*keyWidth)
-				.attr("y", .45*keyHeight)
-				.attr("text-anchor", "start")
-
-			key.append("rect")
-				.attr("x", .3*keyWidth)
-				.attr("y", .3*keyHeight)
-				.attr("height", .2*keyHeight)
-				.attr("width", .05*keyWidth)
-				.style("fill", "yellow")
-				.style("stroke", "black")
-				.style("stroke-width", lineWidth);
-
-			key.append("text")
-				.text("Machine/Tech")
-				.attr("x", .37*keyWidth)
-				.attr("y", .45*keyHeight)
-				.attr("text-anchor", "start")
-
-			key.append("rect")
-				.attr("x", .5*keyWidth)
-				.attr("y", .3*keyHeight)
-				.attr("height", .2*keyHeight)
-				.attr("width", .05*keyWidth)
-				.style("fill", "blue")
-				.style("stroke", "black")
-				.style("stroke-width", lineWidth);
-
-			key.append("text")
-				.text("Automobile")
-				.attr("x", .57*keyWidth)
-				.attr("y", .45*keyHeight)
-				.attr("text-anchor", "start")
-
-			key.append("rect")
-				.attr("x", .7*keyWidth)
-				.attr("y", .3*keyHeight)
-				.attr("height", .2*keyHeight)
-				.attr("width", .05*keyWidth)
-				.style("fill", "pink")
-				.style("stroke", "black")
-				.style("stroke-width", lineWidth);
-
-			key.append("text")
-				.text("Alien Tech")
-				.attr("x", .77*keyWidth)
-				.attr("y", .45*keyHeight)
-				.attr("text-anchor", "start")
-
-
-
-			key.append("rect")
-				.attr("x", .1*keyWidth)
-				.attr("y", .6*keyHeight)
-				.attr("height", .2*keyHeight)
-				.attr("width", .05*keyWidth)
-				.style("fill", "orange")
-				.style("stroke", "black")
-				.style("stroke-width", lineWidth);
-
-			key.append("text")
-				.text("Slingshot")
-				.attr("x", .17*keyWidth)
-				.attr("y", .75*keyHeight)
-				.attr("text-anchor", "start")
-
-			key.append("rect")
-				.attr("x", .3*keyWidth)
-				.attr("y", .6*keyHeight)
-				.attr("height", .2*keyHeight)
-				.attr("width", .05*keyWidth)
-				.style("fill", "green")
-				.style("stroke", "black")
-				.style("stroke-width", lineWidth);
-
-			key.append("text")
-				.text("Freezing")
-				.attr("x", .37*keyWidth)
-				.attr("y", .75*keyHeight)
-				.attr("text-anchor", "start")
-
-			key.append("rect")
-				.attr("x", .5*keyWidth)
-				.attr("y", .6*keyHeight)
-				.attr("height", .2*keyHeight)
-				.attr("width", .05*keyWidth)
-				.style("fill", "purple")
-				.style("stroke", "black")
-				.style("stroke-width", lineWidth);
-
-			key.append("text")
-				.text("Power of Mind")
-				.attr("x", .57*keyWidth)
-				.attr("y", .75*keyHeight)
-				.attr("text-anchor", "start")
-
-			key.append("rect")
-				.attr("x", .7*keyWidth)
-				.attr("y", .6*keyHeight)
-				.attr("height", .2*keyHeight)
-				.attr("width", .05*keyWidth)
-				.style("fill", "black")
-				.style("stroke", "black")
-				.style("stroke-width", lineWidth);
-
-			key.append("text")
-				.text("Unknown")
-				.attr("x", .77*keyWidth)
-				.attr("y", .75*keyHeight)
-				.attr("text-anchor", "start")
-
+			methodsOfTravel.forEach(function (method) {
+				if (counter < 4) {
+					key.append("rect")
+						.attr("x", widthCounter*keyWidth)
+						.attr("y", .3*keyHeight)
+						.attr("height", .2*keyHeight)
+						.attr("width", .05*keyWidth)
+						.style("fill", colors[counter])
+						.style("stroke", "black")
+						.style("stroke-width", lineWidth);
+					key.append("text")
+						.text(method)
+						.attr("x", (widthCounter + .07)*keyWidth)
+						.attr("y", .45*keyHeight)
+						.attr("text-anchor", "start")
+					widthCounter += .2;
+				}
+				else {
+					widthCounter -= .2;
+					key.append("rect")
+						.attr("x", widthCounter*keyWidth)
+						.attr("y", .6*keyHeight)
+						.attr("height", .2*keyHeight)
+						.attr("width", .05*keyWidth)
+						.style("fill", colors[counter])
+						.style("stroke", "black")
+						.style("stroke-width", lineWidth);
+					key.append("text")
+						.text(method)
+						.attr("x", (widthCounter + .07)*keyWidth)
+						.attr("y", .75*keyHeight)
+						.attr("text-anchor", "start")
+				}
+				counter += 1;
+			});	
 		}
 
 		drawTitle();
