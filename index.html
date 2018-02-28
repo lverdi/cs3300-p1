@@ -32,8 +32,6 @@ body { font-family: 'Poppins'; background-color: #fcfdff;}
 		var pre1900Scale = d3.scaleLinear().domain([1200, 1899]).range([75, 204]);
 		var mainScale = d3.scaleLinear().domain([1900, 1999]).range([205, 334]);
 		var post2000Scale = d3.scaleLinear().domain([2000, 2500]).range([-25, 50]);
-		var popularityScale = d3.scaleLinear().domain([0, 10]).range([2, 7]);
-
 
 		function drawTimeline() {
 			var timeline = svg.append("circle")
@@ -82,7 +80,7 @@ body { font-family: 'Poppins'; background-color: #fcfdff;}
 			} else if (year >= 2000 && year <= 2500) {
 				return post2000Scale(year);
 			} else {
-				console.log("Year is invalid");
+				return 0;
 			}
 		}
 
@@ -209,10 +207,84 @@ body { font-family: 'Poppins'; background-color: #fcfdff;}
 			});
 		}
 
+
+		function parseLine (line) {
+			line.From = Number(line.From);
+			line.To = Number(line.To);
+			line.Rating = Number(line.Rating);
+			return line;
+		}
+
+		var lineGenerator = d3.line();
+
+
+		function displayData(data) {
+			var line;
+			var x1;
+			var x1;
+			var y1;
+			var y2;
+			var data;
+
+			data.forEach(function (y) {
+				x1 = plotAngleRadius(scaledYear(y.From), graphRadius)[0];
+				y1 = plotAngleRadius(scaledYear(y.From), graphRadius)[1];
+				x2 = plotAngleRadius(scaledYear(y.To), graphRadius)[0];
+				y2 = plotAngleRadius(scaledYear(y.To), graphRadius)[1];
+				if (x1 == 0 || y1 == 0 || x2 == 0 || y2 == 0) {
+					return
+				}
+				else {
+					var path = d3.path();
+					path.moveTo(x1,y1);
+					path.quadraticCurveTo((x1+x2)/2.5,(y1+y2)/2.5,x2,y2);
+					data = [[x1, y1], [x2, y2]];
+					console.log
+					path = svg.append("path")
+						.attr("d", path.toString())
+						// .attr("d", lineGenerator(data))
+						.style("stroke", "red")
+						.style("fill", "none")
+						.attr("stroke-width", 2);
+				}
+			})
+			// data.forEach(function (y) {
+			// 	x1 = plotAngleRadius(scaledYear(y.From), graphRadius)[0];
+			// 	y1 = plotAngleRadius(scaledYear(y.From), graphRadius)[1];
+			// 	x2 = plotAngleRadius(scaledYear(y.To), graphRadius)[0];
+			// 	y2 = plotAngleRadius(scaledYear(y.To), graphRadius)[1];
+			// 	if (x1 == 0 || y1 == 0 || x2 == 0 || y2 == 0) {
+			// 		return
+			// 	}
+			// 	else {
+			// 		line = svg.append("line")
+			// 			.attr("x1", x1)
+			// 			.attr("y1", y1)
+			// 			.attr("x2", x2)
+			// 			.attr("y2", y2)
+			// 			.style("stroke", )
+			// 			.attr("curve", d3.curveCardinal);
+			// 	}
+			// })
+			// var paths = svg.append("path").datum(data).attr({
+			// 	d: pathGenerator(data),
+			// 	fill: 'none',
+			// 	stroke: 'red'
+			// });
+		}
+
 		drawTitle();
 		drawColorKey();
 		drawTimeline();
 		drawTicks();
+
+		var rawData;
+
+		d3.tsv("Time_Travel_Plots_TSV.txt", parseLine, function (error, data) {
+			rawData = data;
+			displayData(rawData);
+
+		})
 
 	</script>
 </svg>
