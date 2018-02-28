@@ -4,11 +4,11 @@
 <link href="https://fonts.googleapis.com/css?family=Poppins" rel="stylesheet">
 <script src="https://d3js.org/d3.v4.min.js"></script>
 <style>
-body { font-family: 'Poppins'; background-color: #fcfdff;}
-#title { height: 10% }
-#content { height: 70% }
-#key { height: 20% }
-
+body { font-family: 'Poppins'; background-color: black; }
+svg text { fill: white; }
+#title { height: 100px; }
+#content { height: 850px; }
+#key { height: 200px; }
 </style>
 </head>
 <body>
@@ -16,8 +16,10 @@ body { font-family: 'Poppins'; background-color: #fcfdff;}
 <div id="content" align="center"></div>
 <div id="key" align="center"></div>
 	<script>
-		var height = document.getElementById("content").clientHeight;
-		var width = document.getElementById("content").clientWidth;
+		var height = d3.select("#content").style("height");
+		var width = d3.select("#content").style("width");
+		width = parseInt(width.substring(0, width.length - 2));
+		height = parseInt(height.substring(0, height.length - 2));
 		var centerX = width / 2;
 		var centerY = height / 2;
 		var graphRadius = height * 0.4;
@@ -30,27 +32,30 @@ body { font-family: 'Poppins'; background-color: #fcfdff;}
 			.attr("height", height)
 			.attr("width", width);
 
-		var pre1900Scale = d3.scaleLinear().domain([1200, 1899]).range([75, 204]);
-		var mainScale = d3.scaleLinear().domain([1900, 1999]).range([205, 334]);
-		var post2000Scale = d3.scaleLinear().domain([2000, 2500]).range([-25, 50]);
-
-		drawTitle();
-		drawColorKey();
-		drawTimeline();
-		drawTicks();
+		var pre1900Scale = d3.scaleLinear().domain([1200, 1899]).range([75, 194]);
+		var mainScale = d3.scaleLinear().domain([1900, 1999]).range([195, 344]);
+		var post2000Scale = d3.scaleLinear().domain([2000, 2500]).range([-15, 50]);
+		var popularityScale;
+		var popExtent;
 
 		d3.tsv("Time_Travel_Plots_TSV.txt", parseLine, function (error, data) {
 			rawData = data;
+			popExtent = d3.extent(rawData, function (d) { return d.Rating; });
+			popularityScale = d3.scaleLinear().domain(popExtent).range([1, 8]);
 			displayData(rawData);
+		});
 
-		})
+		drawTitle();
+		drawColorKey();
+		drawTicks();
+		drawTimeline();
 
 		function drawTimeline() {
 			var timeline = svg.append("circle")
 				.attr("r", graphRadius)
 				.attr("cx", centerX)
 				.attr("cy", centerY)
-				.attr("stroke", "black")
+				.attr("stroke", "white")
 				.attr("stroke-width", 4)
 				.style("fill", "none");
 
@@ -62,7 +67,7 @@ body { font-family: 'Poppins'; background-color: #fcfdff;}
 
 			svg.append("path")
 				.attr("d", arc)
-				.attr("stroke", "#fcfdff")
+				.attr("stroke", "black")
 				.attr("stroke-width", 10)
 				.attr("transform", "translate(" + centerX + ", " + centerY + ")");
 		}
@@ -118,7 +123,7 @@ body { font-family: 'Poppins'; background-color: #fcfdff;}
 				.attr("y", plotAngleRadius(scaledYear(y), graphRadius + dist)[1])
 				.attr("text-anchor", "middle")
 				.attr("alignment-baseline", "middle")
-				.style("font-size", size);
+				.style("font-size", size)
 		}
 
 		function drawTick (y, size) {
@@ -132,7 +137,7 @@ body { font-family: 'Poppins'; background-color: #fcfdff;}
 
 			svg.append("path")
 				.attr("d", tick)
-				.attr("stroke", "black")
+				.attr("stroke", "white")
 				.attr("stroke-width", 2)
 				.attr("fill", "none");
 		}
@@ -143,13 +148,13 @@ body { font-family: 'Poppins'; background-color: #fcfdff;}
 				drawLabels(y, 20);
 			}
 			for (var y = 1200; y < 1900; y += 25) {
-				drawTick(y, 7);
+				drawTick(y, 8);
 			}
 			for (var y = 2000; y <= 2500; y += 25) {
-				drawTick(y, 7);
+				drawTick(y, 8);
 			}
 			for (var y = 1910; y <= 1990; y += 10) {
-				drawTick(y, 7);
+				drawTick(y, 8);
 				drawLabels(y, 13);
 			}
 		}
@@ -166,7 +171,7 @@ body { font-family: 'Poppins'; background-color: #fcfdff;}
 						.attr("height", .2*keyHeight)
 						.attr("width", .05*keyWidth)
 						.style("fill", colors[counter])
-						.style("stroke", "black")
+						.style("stroke", "white")
 						.style("stroke-width", lineWidth);
 					key.append("text")
 						.text(method)
@@ -183,7 +188,7 @@ body { font-family: 'Poppins'; background-color: #fcfdff;}
 						.attr("height", .2*keyHeight)
 						.attr("width", .05*keyWidth)
 						.style("fill", colors[counter])
-						.style("stroke", "black")
+						.style("stroke", "white")
 						.style("stroke-width", lineWidth);
 					key.append("text")
 						.text(method)
@@ -193,7 +198,6 @@ body { font-family: 'Poppins'; background-color: #fcfdff;}
 				}
 				counter += 1;
 			});
-
 		}
 
 		function drawColorKey() {
@@ -219,7 +223,7 @@ body { font-family: 'Poppins'; background-color: #fcfdff;}
 				.attr("height", keyHeight - lineWidth)
 				.attr("width", keyWidth - lineWidth)
 				.style("fill", "none")
-				.style("stroke", "black")
+				.style("stroke", "white")
 				.style("stroke-width", lineWidth);
 
 			key.append("text")
@@ -276,24 +280,24 @@ body { font-family: 'Poppins'; background-color: #fcfdff;}
 			var y2;
 			var path;
 			data.forEach(function (y) {
-				x1 = plotAngleRadius(scaledYear(y.From), graphRadius)[0];
-				y1 = plotAngleRadius(scaledYear(y.From), graphRadius)[1];
-				x2 = plotAngleRadius(scaledYear(y.To), graphRadius)[0];
-				y2 = plotAngleRadius(scaledYear(y.To), graphRadius)[1];
-				if (x1 == 0 || y1 == 0 || x2 == 0 || y2 == 0) { return }
+				x1 = plotYear(y.From)[0];
+				y1 = plotYear(y.From)[1];
+				x2 = plotYear(y.To)[0];
+				y2 = plotYear(y.To)[1];
+				if (x1 == 0 || y1 == 0 || x2 == 0 || y2 == 0) { console.log("error"); return; }
 				else {
 					path = d3.path();
 					path.moveTo(x1,y1);
 					path.quadraticCurveTo((x1+x2)/2.5,(y1+y2)/2.5,x2,y2);
 					data = [[x1, y1], [x2, y2]];
-					console.log
+					console.log(y.Rating);
 					path = svg.append("path")
 						.attr("d", path.toString())
 						.style("stroke", colors[y.Color])
 						.style("fill", "none")
-						.attr("stroke-width", y.Rating/2);
+						.attr("stroke-width", popularityScale(y.Rating));
 				}
-			})
+			});
 		}
 
 	</script>
