@@ -23,7 +23,7 @@ body { font-family: 'Poppins'; background-color: #fcfdff;}
 		var graphRadius = height * 0.4;
 
 		var colors = ["red", "yellow", "blue", "pink", "black", "purple", "green", "orange"];
-		var methodsOfTravel = ["Mystery Force", "Machine/Tech", "Automobile", "Alien Tech", "Unknown", "Power of Mind", "Freezing", "Slingshot"];
+		var methodsOfTravel = ["Mystery Force", "Machine/Tech", "Automobile", "Alien Tech", "Unknown", "Mind Power", "Freezing", "Slingshot"];
 
 		var svg = d3.selectAll("#content").append("svg")
 			.attr("height", height)
@@ -207,16 +207,43 @@ body { font-family: 'Poppins'; background-color: #fcfdff;}
 			});
 		}
 
+		function getColor(input) {
+			console.log(input);
+			input = input.toLowerCase()
+			if (input == "mystery force") {
+				return methodsOfTravel.indexOf("Mystery Force")
+			}
+			else if (input == "machine / tech" || input == "time machine") {
+				return methodsOfTravel.indexOf("Machine/Tech")
+			}
+			else if (input == "car") {
+				return methodsOfTravel.indexOf("Automobile")
+			}
+			else if (input == "alien tech") {
+				return methodsOfTravel.indexOf("Alien Tech")
+			}
+			else if (input == "slingshot") {
+				return methodsOfTravel.indexOf("Slingshot")
+			}
+			else if (input == "freezing") {
+				return methodsOfTravel.indexOf("Freezing")
+			}
+			else if (input == "power of mind") {
+				return methodsOfTravel.indexOf("Mind Power")
+			}
+			else {
+				return methodsOfTravel.indexOf("Unknown")
+			}
+		}
+
 
 		function parseLine (line) {
 			line.From = Number(line.From);
 			line.To = Number(line.To);
 			line.Rating = Number(line.Rating);
+			line.Color = getColor(line.Method)
 			return line;
 		}
-
-		var lineGenerator = d3.line();
-
 
 		function displayData(data) {
 			var line;
@@ -242,35 +269,11 @@ body { font-family: 'Poppins'; background-color: #fcfdff;}
 					console.log
 					path = svg.append("path")
 						.attr("d", path.toString())
-						// .attr("d", lineGenerator(data))
-						.style("stroke", "red")
+						.style("stroke", colors[y.Color])
 						.style("fill", "none")
 						.attr("stroke-width", 2);
 				}
 			})
-			// data.forEach(function (y) {
-			// 	x1 = plotAngleRadius(scaledYear(y.From), graphRadius)[0];
-			// 	y1 = plotAngleRadius(scaledYear(y.From), graphRadius)[1];
-			// 	x2 = plotAngleRadius(scaledYear(y.To), graphRadius)[0];
-			// 	y2 = plotAngleRadius(scaledYear(y.To), graphRadius)[1];
-			// 	if (x1 == 0 || y1 == 0 || x2 == 0 || y2 == 0) {
-			// 		return
-			// 	}
-			// 	else {
-			// 		line = svg.append("line")
-			// 			.attr("x1", x1)
-			// 			.attr("y1", y1)
-			// 			.attr("x2", x2)
-			// 			.attr("y2", y2)
-			// 			.style("stroke", )
-			// 			.attr("curve", d3.curveCardinal);
-			// 	}
-			// })
-			// var paths = svg.append("path").datum(data).attr({
-			// 	d: pathGenerator(data),
-			// 	fill: 'none',
-			// 	stroke: 'red'
-			// });
 		}
 
 		drawTitle();
