@@ -8,39 +8,62 @@ body { font-family: 'Poppins'; }
 </style>
 </head>
 <body>
-<div id="content" align="center" style="height: 100%"></div>
+<div id="title" align="center" style="height: 10%"></div>
+<div id="content" align="center" style="height: 70%"></div>
+<div id="key" align="center" style="height: 20%"></div>
 	<script>
 		var height = document.getElementById("content").clientHeight;
 		var width = document.getElementById("content").clientWidth;
 		var centerX = width / 2;
 		var centerY = height / 2;
 		var graphRadius = height * 0.4;
+
 		var svg = d3.selectAll("#content").append("svg")
-		.attr("height", height)
-		.attr("width", width);
-
-		var timeline = svg.append("circle")
-		.attr("r", graphRadius)
-		.attr("cx", centerX)
-		.attr("cy", centerY)
-		.attr("stroke", "black")
-		.attr("stroke-width", 4)
-		.style("fill", "none");
-
-		var arc = d3.arc()
-    .innerRadius(graphRadius - 2)
-    .outerRadius(graphRadius + 2)
-    .startAngle(38 * Math.PI / 180)
-    .endAngle(17 * Math.PI / 180);
-		svg.append("path")
-		.attr("d", arc)
-		.attr("stroke", "white")
-		.attr("stroke-width", 10)
-		.attr("transform", "translate(" + centerX + ", " + centerY + ")");
+			.attr("height", height)
+			.attr("width", width);
 
 		var pre1900Scale = d3.scaleLinear().domain([1200, 1899]).range([75, 204]);
 		var mainScale = d3.scaleLinear().domain([1900, 1999]).range([205, 334]);
 		var post2000Scale = d3.scaleLinear().domain([2000, 2500]).range([-25, 50]);
+		
+		function drawTimeline() {
+			var timeline = svg.append("circle")
+				.attr("r", graphRadius)
+				.attr("cx", centerX)
+				.attr("cy", centerY)
+				.attr("stroke", "black")
+				.attr("stroke-width", 4)
+				.style("fill", "none");
+
+			var arc = d3.arc()
+			    .innerRadius(graphRadius - 2)
+			    .outerRadius(graphRadius + 2)
+			    .startAngle(38 * Math.PI / 180)
+			    .endAngle(17 * Math.PI / 180);
+
+			svg.append("path")
+				.attr("d", arc)
+				.attr("stroke", "white")
+				.attr("stroke-width", 10)
+				.attr("transform", "translate(" + centerX + ", " + centerY + ")");	
+		}
+
+		function drawTitle() {
+			var titleHeight = document.getElementById("title").clientHeight;
+			var titleWidth = document.getElementById("title").clientWidth;
+
+			var title =  d3.selectAll("#title").append("svg")
+				.attr("height", titleHeight)
+				.attr("width", titleWidth);
+
+			title.append("text")
+				.text("TIME TRAVEL IN FILM AND TELEVISION")
+				.attr("x", titleWidth/2)
+				.attr("y", titleHeight/2)
+				.attr("text-anchor", "middle")
+				.attr("alignment-baseline", "middle")
+				.style("font-size", 35);
+		}
 
 		function scaledYear (year) {
 			if (year >= 1200 && year < 1900) {
@@ -66,11 +89,11 @@ body { font-family: 'Poppins'; }
 
 		function drawLabels(y, dist, size) {
 			svg.append("text").text(y)
-			.attr("x", plotAngleRadius(scaledYear(y), graphRadius + dist)[0])
-			.attr("y", plotAngleRadius(scaledYear(y), graphRadius + dist)[1])
-			.attr("text-anchor", "middle")
-			.attr("alignment-baseline", "middle")
-			.style("font-size", size);
+				.attr("x", plotAngleRadius(scaledYear(y), graphRadius + dist)[0])
+				.attr("y", plotAngleRadius(scaledYear(y), graphRadius + dist)[1])
+				.attr("text-anchor", "middle")
+				.attr("alignment-baseline", "middle")
+				.style("font-size", size);
 		}
 
 		function drawTick (y, size) {
@@ -78,15 +101,15 @@ body { font-family: 'Poppins'; }
 			var outer = plotAngleRadius(scaledYear(y), graphRadius + size);
 
 			var tickFunct = d3.line()
-			.x(function (d) { return d[0]; })
-			.y(function (d) { return d[1]; });
+				.x(function (d) { return d[0]; })
+				.y(function (d) { return d[1]; });
 			var tick = tickFunct([inner, outer]);
 
 			svg.append("path")
-			.attr("d", tick)
-			.attr("stroke", "black")
-			.attr("stroke-width", 2)
-			.attr("fill", "none");
+				.attr("d", tick)
+				.attr("stroke", "black")
+				.attr("stroke-width", 2)
+				.attr("fill", "none");
 		}
 
 		function drawTicks () {
@@ -105,6 +128,161 @@ body { font-family: 'Poppins'; }
 				drawLabels(y, 30, 13);
 			}
 		}
+
+		function drawColorKey() {
+			var keyWidth = document.getElementById("key").clientWidth;
+			var keyHeight = document.getElementById("key").clientHeight;
+			var lineWidth = 3;
+			var containerMarginFactor = 5;
+
+			var key = d3.selectAll("#key").append("svg")
+				.attr("height", keyHeight)
+				.attr("width", keyWidth);
+
+			key.append("text")
+				.text("TRAVEL BY...")
+				.attr("x", keyWidth/2)
+				.attr("y", .15*keyHeight)
+				.attr("text-anchor", "middle")
+				.attr("alignment-baseline", "middle")
+				.style("font-size", 20);
+
+			key.append("rect")
+				.attr("x", 1)
+				.attr("y", 1)
+				.attr("height", keyHeight - 2)
+				.attr("width", keyWidth - 2)
+				.style("fill", "none")
+				.style("stroke", "black")
+				.style("stroke-width", lineWidth);
+
+			key.append("rect")
+				.attr("x", .1*keyWidth)
+				.attr("y", .3*keyHeight)
+				.attr("height", .2*keyHeight)
+				.attr("width", .05*keyWidth)
+				.style("fill", "red")
+				.style("stroke", "black")
+				.style("stroke-width", lineWidth);
+
+			key.append("text")
+				.text("Mystery Force")
+				.attr("x", .17*keyWidth)
+				.attr("y", .45*keyHeight)
+				.attr("text-anchor", "start")
+
+			key.append("rect")
+				.attr("x", .3*keyWidth)
+				.attr("y", .3*keyHeight)
+				.attr("height", .2*keyHeight)
+				.attr("width", .05*keyWidth)
+				.style("fill", "yellow")
+				.style("stroke", "black")
+				.style("stroke-width", lineWidth);
+
+			key.append("text")
+				.text("Machine/Tech")
+				.attr("x", .37*keyWidth)
+				.attr("y", .45*keyHeight)
+				.attr("text-anchor", "start")
+
+			key.append("rect")
+				.attr("x", .5*keyWidth)
+				.attr("y", .3*keyHeight)
+				.attr("height", .2*keyHeight)
+				.attr("width", .05*keyWidth)
+				.style("fill", "blue")
+				.style("stroke", "black")
+				.style("stroke-width", lineWidth);
+
+			key.append("text")
+				.text("Automobile")
+				.attr("x", .57*keyWidth)
+				.attr("y", .45*keyHeight)
+				.attr("text-anchor", "start")
+
+			key.append("rect")
+				.attr("x", .7*keyWidth)
+				.attr("y", .3*keyHeight)
+				.attr("height", .2*keyHeight)
+				.attr("width", .05*keyWidth)
+				.style("fill", "pink")
+				.style("stroke", "black")
+				.style("stroke-width", lineWidth);
+
+			key.append("text")
+				.text("Alien Tech")
+				.attr("x", .77*keyWidth)
+				.attr("y", .45*keyHeight)
+				.attr("text-anchor", "start")
+
+
+
+			key.append("rect")
+				.attr("x", .1*keyWidth)
+				.attr("y", .6*keyHeight)
+				.attr("height", .2*keyHeight)
+				.attr("width", .05*keyWidth)
+				.style("fill", "orange")
+				.style("stroke", "black")
+				.style("stroke-width", lineWidth);
+
+			key.append("text")
+				.text("Slingshot")
+				.attr("x", .17*keyWidth)
+				.attr("y", .75*keyHeight)
+				.attr("text-anchor", "start")
+
+			key.append("rect")
+				.attr("x", .3*keyWidth)
+				.attr("y", .6*keyHeight)
+				.attr("height", .2*keyHeight)
+				.attr("width", .05*keyWidth)
+				.style("fill", "green")
+				.style("stroke", "black")
+				.style("stroke-width", lineWidth);
+
+			key.append("text")
+				.text("Freezing")
+				.attr("x", .37*keyWidth)
+				.attr("y", .75*keyHeight)
+				.attr("text-anchor", "start")
+
+			key.append("rect")
+				.attr("x", .5*keyWidth)
+				.attr("y", .6*keyHeight)
+				.attr("height", .2*keyHeight)
+				.attr("width", .05*keyWidth)
+				.style("fill", "purple")
+				.style("stroke", "black")
+				.style("stroke-width", lineWidth);
+
+			key.append("text")
+				.text("Power of Mind")
+				.attr("x", .57*keyWidth)
+				.attr("y", .75*keyHeight)
+				.attr("text-anchor", "start")
+
+			key.append("rect")
+				.attr("x", .7*keyWidth)
+				.attr("y", .6*keyHeight)
+				.attr("height", .2*keyHeight)
+				.attr("width", .05*keyWidth)
+				.style("fill", "black")
+				.style("stroke", "black")
+				.style("stroke-width", lineWidth);
+
+			key.append("text")
+				.text("Unknown")
+				.attr("x", .77*keyWidth)
+				.attr("y", .75*keyHeight)
+				.attr("text-anchor", "start")
+
+		}
+
+		drawTitle();
+		drawColorKey();
+		drawTimeline();
 		drawTicks();
 
 	</script>
