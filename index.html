@@ -22,7 +22,7 @@ body { font-family: 'Poppins'; background-color: #fcfdff;}
 		var centerY = height / 2;
 		var graphRadius = height * 0.4;
 
-		var colors = ["red", "yellow", "blue", "pink", "black", "purple", "green", "orange"];
+		var colors = ["#EF2D56", "#BA2C73", "#345995", "#9B1D20", "#363537", "#434371", "#0FA3B1", "#ED7D3A"];
 		var methodsOfTravel = ["Mystery Force", "Machine/Tech", "Automobile", "Alien Tech", "Unknown", "Mind Power", "Freezing", "Slingshot"];
 
 		var svg = d3.selectAll("#content").append("svg")
@@ -271,7 +271,7 @@ body { font-family: 'Poppins'; background-color: #fcfdff;}
 						.attr("d", path.toString())
 						.style("stroke", colors[y.Color])
 						.style("fill", "none")
-						.attr("stroke-width", 2);
+						.attr("stroke-width", y.Rating/2);
 				}
 			})
 		}
