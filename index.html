@@ -170,6 +170,14 @@ body { font-family: 'Poppins'; background-color: #fcfdff;}
 				.style("stroke", "black")
 				.style("stroke-width", lineWidth);
 
+			key.append("text")
+				.text("Line Thickness is Proportional to IMDB Rating Out Of 10")
+				.attr("x", keyWidth/2)
+				.attr("y", .93*keyHeight)
+				.attr("text-anchor", "middle")
+				.attr("alignment-baseline", "middle")
+				.style("font-size", 15);
+
 			methodsOfTravel.forEach(function (method) {
 				if (counter < 4) {
 					key.append("rect")
@@ -250,16 +258,13 @@ body { font-family: 'Poppins'; background-color: #fcfdff;}
 			var x1;
 			var y1;
 			var y2;
-			var data;
 
 			data.forEach(function (y) {
 				x1 = plotAngleRadius(scaledYear(y.From), graphRadius)[0];
 				y1 = plotAngleRadius(scaledYear(y.From), graphRadius)[1];
 				x2 = plotAngleRadius(scaledYear(y.To), graphRadius)[0];
 				y2 = plotAngleRadius(scaledYear(y.To), graphRadius)[1];
-				if (x1 == 0 || y1 == 0 || x2 == 0 || y2 == 0) {
-					return
-				}
+				if (x1 == 0 || y1 == 0 || x2 == 0 || y2 == 0) { return }
 				else {
 					var path = d3.path();
 					path.moveTo(x1,y1);
