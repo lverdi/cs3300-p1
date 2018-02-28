@@ -22,8 +22,8 @@ body { font-family: 'Poppins'; background-color: #fcfdff;}
 		var centerY = height / 2;
 		var graphRadius = height * 0.4;
 
-		var colors = ["#EF2D56", "#BA2C73", "#345995", "#9B1D20", "#363537", "#434371", "#0FA3B1", "#ED7D3A"];
-		var methodsOfTravel = ["Mystery Force", "Machine/Tech", "Automobile", "Alien Tech", "Unknown", "Mind Power", "Freezing", "Slingshot"];
+		var colors = ["#EF2D56", "#ED7D3A", "#345995", "#9B1D20", "#363537", "#434371", "#0FA3B1", "#3BB273"];
+		var methodsOfTravel = ["Mystery Force", "Machine/Tech", "Car", "Alien Tech", "Unknown", "Mind Power", "Freezing", "Slingshot"];
 
 		var svg = d3.selectAll("#content").append("svg")
 			.attr("height", height)
@@ -216,7 +216,7 @@ body { font-family: 'Poppins'; background-color: #fcfdff;}
 				return methodsOfTravel.indexOf("Machine/Tech")
 			}
 			else if (input == "car") {
-				return methodsOfTravel.indexOf("Automobile")
+				return methodsOfTravel.indexOf("Car")
 			}
 			else if (input == "alien tech") {
 				return methodsOfTravel.indexOf("Alien Tech")
