@@ -1,16 +1,20 @@
 <html>
 <head>
-<title>INFO 3300 - Data-driven Web Applications</title>
+<title>TIME TRAVEL IN FILM AND TELEVISION</title>
 <link href="https://fonts.googleapis.com/css?family=Poppins" rel="stylesheet">
 <script src="https://d3js.org/d3.v4.min.js"></script>
 <style>
-body { font-family: 'Poppins'; }
+body { font-family: 'Poppins'; background-color: #fcfdff;}
+#title { height: 10% }
+#content { height: 70% }
+#key { height: 20% }
+
 </style>
 </head>
 <body>
-<div id="title" align="center" style="height: 10%"></div>
-<div id="content" align="center" style="height: 70%"></div>
-<div id="key" align="center" style="height: 20%"></div>
+<div id="title" align="center"></div>
+<div id="content" align="center"></div>
+<div id="key" align="center"></div>
 	<script>
 		var height = document.getElementById("content").clientHeight;
 		var width = document.getElementById("content").clientWidth;
@@ -28,7 +32,9 @@ body { font-family: 'Poppins'; }
 		var pre1900Scale = d3.scaleLinear().domain([1200, 1899]).range([75, 204]);
 		var mainScale = d3.scaleLinear().domain([1900, 1999]).range([205, 334]);
 		var post2000Scale = d3.scaleLinear().domain([2000, 2500]).range([-25, 50]);
-		
+		var popularityScale = d3.scaleLinear().domain([0, 10]).range([2, 7]);
+
+
 		function drawTimeline() {
 			var timeline = svg.append("circle")
 				.attr("r", graphRadius)
@@ -46,9 +52,9 @@ body { font-family: 'Poppins'; }
 
 			svg.append("path")
 				.attr("d", arc)
-				.attr("stroke", "white")
+				.attr("stroke", "#fcfdff")
 				.attr("stroke-width", 10)
-				.attr("transform", "translate(" + centerX + ", " + centerY + ")");	
+				.attr("transform", "translate(" + centerX + ", " + centerY + ")");
 		}
 
 		function drawTitle() {
@@ -90,7 +96,13 @@ body { font-family: 'Poppins'; }
 			return plotAngleRadius(scaledYear(year), graphRadius);
 		}
 
-		function drawLabels(y, dist, size) {
+		function drawLabels(y, size) {
+			var dist;
+			if ((y >= 1600 && y <= 1900) || y >= 2000 && y <= 2400) {
+				dist = 45;
+			} else {
+				dist = 33;
+			}
 			svg.append("text").text(y)
 				.attr("x", plotAngleRadius(scaledYear(y), graphRadius + dist)[0])
 				.attr("y", plotAngleRadius(scaledYear(y), graphRadius + dist)[1])
@@ -118,17 +130,17 @@ body { font-family: 'Poppins'; }
 		function drawTicks () {
 			for (var y = 1200; y <= 2500; y += 100) {
 				drawTick(y, 15);
-				drawLabels(y, 35, 20);
+				drawLabels(y, 20);
 			}
 			for (var y = 1200; y < 1900; y += 25) {
-				drawTick(y, 6);
+				drawTick(y, 7);
 			}
 			for (var y = 2000; y <= 2500; y += 25) {
-				drawTick(y, 6);
+				drawTick(y, 7);
 			}
 			for (var y = 1910; y <= 1990; y += 10) {
-				drawTick(y, 6);
-				drawLabels(y, 30, 13);
+				drawTick(y, 7);
+				drawLabels(y, 13);
 			}
 		}
 
@@ -136,7 +148,7 @@ body { font-family: 'Poppins'; }
 			var keyWidth = document.getElementById("key").clientWidth;
 			var keyHeight = document.getElementById("key").clientHeight;
 			var lineWidth = 3;
-			var widthCounter = .1;	
+			var widthCounter = .1;
 			var counter = 0;
 
 			var key = d3.selectAll("#key").append("svg")
@@ -194,7 +206,7 @@ body { font-family: 'Poppins'; }
 						.attr("text-anchor", "start")
 				}
 				counter += 1;
-			});	
+			});
 		}
 
 		drawTitle();
