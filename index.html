@@ -1,306 +1,388 @@
 <html>
 <head>
 <title>TIME TRAVEL IN FILM AND TELEVISION</title>
-<link href="https://fonts.googleapis.com/css?family=Poppins" rel="stylesheet">
-<script src="https://d3js.org/d3.v4.min.js"></script>
+<script src="scripts/d3.js"></script>
 <style>
+@font-face { font-family: "Poppins"; src: url("fonts/Poppins-Regular.ttf")}
 body { font-family: 'Poppins'; background-color: black; }
 svg text { fill: white; }
-#title { height: 100px; }
-#content { height: 850px; }
-#key { height: 200px; }
+#title { height: 150px; }
+#maingraph { height: 850px; }
+#key { height: 250px; }
 </style>
 </head>
 <body>
-<div id="title" align="center"></div>
-<div id="content" align="center"></div>
-<div id="key" align="center"></div>
-	<script>
-		var height = d3.select("#content").style("height");
-		var width = d3.select("#content").style("width");
-		width = parseInt(width.substring(0, width.length - 2));
-		height = parseInt(height.substring(0, height.length - 2));
-		var centerX = width / 2;
-		var centerY = height / 2;
-		var graphRadius = height * 0.4;
-		var rawData;
+	<div id="title" align="center"></div>
+	<div id="maingraph" align="center"></div>
+	<div id="key" align="center"></div>
+		<script>
 
-		var colors = ["#EF2D56", "#ED7D3A", "#345995", "#9B1D20", "#363537", "#434371", "#0FA3B1", "#3BB273"];
-		var methodsOfTravel = ["Mystery Force", "Machine/Tech", "Car", "Alien Tech", "Unknown", "Mind Power", "Freezing", "Slingshot"];
-
-		var svg = d3.selectAll("#content").append("svg")
-			.attr("height", height)
-			.attr("width", width);
-
-		var pre1900Scale = d3.scaleLinear().domain([1200, 1899]).range([75, 194]);
-		var mainScale = d3.scaleLinear().domain([1900, 1999]).range([195, 344]);
-		var post2000Scale = d3.scaleLinear().domain([2000, 2500]).range([-15, 50]);
-		var popularityScale;
-		var popExtent;
-
-		d3.tsv("Time_Travel_Plots_TSV.txt", parseLine, function (error, data) {
-			rawData = data;
-			popExtent = d3.extent(rawData, function (d) { return d.Rating; });
-			popularityScale = d3.scaleLinear().domain(popExtent).range([1, 8]);
-			displayData(rawData);
-		});
-
-		drawTitle();
-		drawColorKey();
-		drawTicks();
-		drawTimeline();
-
-		function drawTimeline() {
-			var timeline = svg.append("circle")
-				.attr("r", graphRadius)
-				.attr("cx", centerX)
-				.attr("cy", centerY)
-				.attr("stroke", "white")
-				.attr("stroke-width", 4)
-				.style("fill", "none");
-
-			var arc = d3.arc()
-			    .innerRadius(graphRadius - 2)
-			    .outerRadius(graphRadius + 2)
-			    .startAngle(38 * Math.PI / 180)
-			    .endAngle(17 * Math.PI / 180);
-
-			svg.append("path")
-				.attr("d", arc)
-				.attr("stroke", "black")
-				.attr("stroke-width", 10)
-				.attr("transform", "translate(" + centerX + ", " + centerY + ")");
-		}
-
-		function drawTitle() {
+			var graphHeight = document.getElementById("maingraph").clientHeight;
+			var graphWidth = document.getElementById("maingraph").clientWidth;
+			var centerX = graphWidth / 2;
+			var centerY = graphHeight / 2;
+			var graphRadius = graphHeight * 0.4;
 			var titleHeight = document.getElementById("title").clientHeight;
 			var titleWidth = document.getElementById("title").clientWidth;
+			var keyWidth = document.getElementById("key").clientWidth;
+			var keyHeight = document.getElementById("key").clientHeight;
+			var lineWidth = 3;
+			var rawData;
+
+			// Arrays to store color key variables
+			var colors = ["#EF2D56", "#ED7D3A", "#345995", "#9B1D20", "#363537",
+			"#434371", "#0FA3B1", "#3BB273"];
+			var methodsOfTravel = ["Mystery Force", "Machine/Tech", "Car", "Alien Tech",
+			"Unknown", "Mind Power", "Freezing", "Slingshot"];
+
+			var svg = d3.selectAll("#maingraph").append("svg")
+				.attr("height", graphHeight)
+				.attr("width", graphWidth);
 
 			var title =  d3.selectAll("#title").append("svg")
 				.attr("height", titleHeight)
 				.attr("width", titleWidth);
 
-			title.append("text")
-				.text("TIME TRAVEL IN FILM AND TELEVISION")
-				.attr("x", titleWidth/2)
-				.attr("y", titleHeight/2)
-				.attr("text-anchor", "middle")
-				.attr("alignment-baseline", "middle")
-				.style("font-size", 35);
-		}
-
-		function scaledYear (year) {
-			if (year >= 1200 && year < 1900) {
-				return pre1900Scale(year);
-			} else if (year >= 1900 && year < 2000) {
-				return mainScale(year);
-			} else if (year >= 2000 && year <= 2500) {
-				return post2000Scale(year);
-			} else {
-				return 0;
-			}
-		}
-
-		function plotAngleRadius (angle, radius) {
-			var x = (radius * Math.cos(angle * Math.PI / 180)) + centerX;
-			var y = centerY - (radius * Math.sin(angle * Math.PI / 180));
-			return [x, y];
-		}
-
-		function plotYear (year) {
-			return plotAngleRadius(scaledYear(year), graphRadius);
-		}
-
-		function drawLabels(y, size) {
-			var dist;
-			if ((y >= 1600 && y <= 1900) || y >= 2000 && y <= 2400) {
-				dist = 45;
-			} else {
-				dist = 33;
-			}
-			svg.append("text").text(y)
-				.attr("x", plotAngleRadius(scaledYear(y), graphRadius + dist)[0])
-				.attr("y", plotAngleRadius(scaledYear(y), graphRadius + dist)[1])
-				.attr("text-anchor", "middle")
-				.attr("alignment-baseline", "middle")
-				.style("font-size", size)
-		}
-
-		function drawTick (y, size) {
-			var inner = plotAngleRadius(scaledYear(y), graphRadius - size);
-			var outer = plotAngleRadius(scaledYear(y), graphRadius + size);
-
-			var tickFunct = d3.line()
-				.x(function (d) { return d[0]; })
-				.y(function (d) { return d[1]; });
-			var tick = tickFunct([inner, outer]);
-
-			svg.append("path")
-				.attr("d", tick)
-				.attr("stroke", "white")
-				.attr("stroke-width", 2)
-				.attr("fill", "none");
-		}
-
-		function drawTicks () {
-			for (var y = 1200; y <= 2500; y += 100) {
-				drawTick(y, 15);
-				drawLabels(y, 20);
-			}
-			for (var y = 1200; y < 1900; y += 25) {
-				drawTick(y, 8);
-			}
-			for (var y = 2000; y <= 2500; y += 25) {
-				drawTick(y, 8);
-			}
-			for (var y = 1910; y <= 1990; y += 10) {
-				drawTick(y, 8);
-				drawLabels(y, 13);
-			}
-		}
-
-		function drawColorsAndLabels(key, lineWidth, keyWidth, keyHeight) {
-			var widthCounter = .1;
-			var counter = 0;
-
-			methodsOfTravel.forEach(function (method) {
-				if (counter < 4) {
-					key.append("rect")
-						.attr("x", widthCounter*keyWidth)
-						.attr("y", .3*keyHeight)
-						.attr("height", .2*keyHeight)
-						.attr("width", .05*keyWidth)
-						.style("fill", colors[counter])
-						.style("stroke", "white")
-						.style("stroke-width", lineWidth);
-					key.append("text")
-						.text(method)
-						.attr("x", (widthCounter + .07)*keyWidth)
-						.attr("y", .45*keyHeight)
-						.attr("text-anchor", "start")
-					widthCounter += .2;
-				}
-				else {
-					widthCounter -= .2;
-					key.append("rect")
-						.attr("x", widthCounter*keyWidth)
-						.attr("y", .6*keyHeight)
-						.attr("height", .2*keyHeight)
-						.attr("width", .05*keyWidth)
-						.style("fill", colors[counter])
-						.style("stroke", "white")
-						.style("stroke-width", lineWidth);
-					key.append("text")
-						.text(method)
-						.attr("x", (widthCounter + .07)*keyWidth)
-						.attr("y", .75*keyHeight)
-						.attr("text-anchor", "start")
-				}
-				counter += 1;
-			});
-		}
-
-		function drawColorKey() {
-			var keyWidth = document.getElementById("key").clientWidth;
-			var keyHeight = document.getElementById("key").clientHeight;
-			var lineWidth = 3;
-
 			var key = d3.selectAll("#key").append("svg")
 				.attr("height", keyHeight)
 				.attr("width", keyWidth);
 
-			key.append("text")
-				.text("TRAVEL BY...")
-				.attr("x", keyWidth/2)
-				.attr("y", .15*keyHeight)
-				.attr("text-anchor", "middle")
-				.attr("alignment-baseline", "middle")
-				.style("font-size", 20);
+			// Scales used for plotting points on graph
+			var pre1900Scale = d3.scaleLinear().domain([1200, 1899]).range([75, 194]);
+			var mainScale = d3.scaleLinear().domain([1900, 1999]).range([195, 344]);
+			var post2000Scale = d3.scaleLinear().domain([2000, 2500]).range([-15, 50]);
+			var popularityScale;
+			var popExtent;
 
-			key.append("rect")
-				.attr("x", 1)
-				.attr("y", 1)
-				.attr("height", keyHeight - lineWidth)
-				.attr("width", keyWidth - lineWidth)
-				.style("fill", "none")
-				.style("stroke", "white")
-				.style("stroke-width", lineWidth);
-
-			key.append("text")
-				.text("Line Thickness is Proportional to IMDB Rating Out Of 10")
-				.attr("x", keyWidth/2)
-				.attr("y", .93*keyHeight)
-				.attr("text-anchor", "middle")
-				.attr("alignment-baseline", "middle")
-				.style("font-size", 15);
-
-			drawColorsAndLabels(key, lineWidth, keyWidth, keyHeight);
-		}
-
-		function getColor(input) {
-			input = input.toLowerCase()
-			if (input == "mystery force" || input == "mysterious force of nature") {
-				return methodsOfTravel.indexOf("Mystery Force")
-			}
-			else if (input == "machine / tech" || input == "time machine") {
-				return methodsOfTravel.indexOf("Machine/Tech")
-			}
-			else if (input == "car") {
-				return methodsOfTravel.indexOf("Car")
-			}
-			else if (input == "alien tech") {
-				return methodsOfTravel.indexOf("Alien Tech")
-			}
-			else if (input == "slingshot") {
-				return methodsOfTravel.indexOf("Slingshot")
-			}
-			else if (input == "freezing") {
-				return methodsOfTravel.indexOf("Freezing")
-			}
-			else if (input == "power of mind") {
-				return methodsOfTravel.indexOf("Mind Power")
-			}
-			else {
-				return methodsOfTravel.indexOf("Unknown")
-			}
-		}
-
-		function parseLine (line) {
-			line.From = Number(line.From);
-			line.To = Number(line.To);
-			line.Rating = Number(line.Rating);
-			line.Color = getColor(line.Method)
-			return line;
-		}
-
-		function displayData(data) {
-			var x1;
-			var x1;
-			var y1;
-			var y2;
-			var path;
-			data.forEach(function (y) {
-				x1 = plotYear(y.From)[0];
-				y1 = plotYear(y.From)[1];
-				x2 = plotYear(y.To)[0];
-				y2 = plotYear(y.To)[1];
-				if (x1 == 0 || y1 == 0 || x2 == 0 || y2 == 0) { console.log("error"); return; }
-				else {
-					path = d3.path();
-					path.moveTo(x1,y1);
-					path.quadraticCurveTo((x1+x2)/2.5,(y1+y2)/2.5,x2,y2);
-					data = [[x1, y1], [x2, y2]];
-					console.log(y.Rating);
-					path = svg.append("path")
-						.attr("d", path.toString())
-						.style("stroke", colors[y.Color])
-						.style("fill", "none")
-						.attr("stroke-width", popularityScale(y.Rating));
-				}
+			// Parse data
+			d3.tsv("Time_Travel_Plots_TSV.txt", parseLine, function (error, data) {
+				rawData = data;
+				popExtent = d3.extent(rawData, function (d) { return d.Rating; });
+				popularityScale = d3.scaleLinear().domain(popExtent).range([1, 8]);
+				displayData(rawData);
 			});
-		}
 
-	</script>
-</svg>
+			// Draw physical timeline and other visual components
+			drawTitle();
+			drawColorKey();
+			drawTicks();
+			drawMainTimeline();
+
+			// Creates circular timeline with a gap in the northeast area of graph.
+			function drawMainTimeline() {
+				var timeline = svg.append("circle")
+					.attr("r", graphRadius)
+					.attr("cx", centerX)
+					.attr("cy", centerY)
+					.attr("stroke", "white")
+					.attr("stroke-width", 4)
+					.style("fill", "none");
+
+				// Arc used to "erase" part of the timeline
+				var arc = d3.arc()
+				    .innerRadius(graphRadius - 2)
+				    .outerRadius(graphRadius + 2)
+				    .startAngle(38 * Math.PI / 180)
+				    .endAngle(17 * Math.PI / 180);
+
+				svg.append("path")
+					.attr("d", arc)
+					.attr("stroke", "black")
+					.attr("stroke-width", 10)
+					.attr("transform", "translate(" + centerX + ", " + centerY + ")");
+			}
+
+			// Draw title and place at the top of the graph, in title svg
+			function drawTitle() {
+				title.append("text")
+					.text("TIME TRAVEL IN FILM AND TELEVISION")
+					.attr("x", titleWidth/2)
+					.attr("y", titleHeight/2)
+					.attr("text-anchor", "middle")
+					.attr("alignment-baseline", "middle")
+					.style("font-size", 35);
+				title.append("text")
+					.text("each line represents a jump in time")
+					.attr("x", titleWidth/2)
+					.attr("y", 7 * titleHeight / 8)
+					.attr("text-anchor", "middle")
+					.attr("alignment-baseline", "middle")
+					.style("font-size", 18);
+			}
+
+			// Takes in a raw year and converts into an angle corresponding to the
+			// location on the graph, which is then used in subsequent function calls.
+			// Uses the scales that were created beforehand.
+			function scaledYear (year) {
+				if (year >= 1200 && year < 1900) {
+					return pre1900Scale(year);
+				} else if (year >= 1900 && year < 2000) {
+					return mainScale(year);
+				} else if (year >= 2000 && year <= 2500) {
+					return post2000Scale(year);
+				} else {
+					return 0;
+				}
+			}
+
+			// Helper function that takes an angle and a radius and returns the point
+			// corresponding to those values centered around the (centerX, centerY).
+			// Helps plot points on graph, draw ticks, and draw labels.
+			function plotAngleRadius (angle, radius) {
+				var rad = angle * Math.PI / 180;
+				var x = (radius * Math.cos(rad)) + centerX;
+				var y = centerY - (radius * Math.sin(rad));
+				return [x, y];
+			}
+
+			// Function used to take raw year and return exact point on scaled graph.
+			// Calls plotAngleRadius using graphRadius
+			function plotYear (year) {
+				return plotAngleRadius(scaledYear(year), graphRadius);
+			}
+
+			// Function draws labels a certain distance away from the edge of the graph.
+			// This distance is adjusted based on certian values to make sure labels are
+			// evenly spaced from graph edge.
+			// y is the year and size is the font-size of label
+			function drawLabels(y, size) {
+				var dist;
+				if ((y >= 1600 && y <= 1900) || y >= 2000 && y <= 2400) {
+					dist = 45;
+				} else {
+					dist = 33;
+				}
+				svg.append("text").text(y)
+					.attr("x", plotAngleRadius(scaledYear(y), graphRadius + dist, centerX,
+							centerY)[0])
+					.attr("y", plotAngleRadius(scaledYear(y), graphRadius + dist, centerX,
+							centerY)[1])
+					.attr("text-anchor", "middle")
+					.attr("alignment-baseline", "middle")
+					.style("font-size", size)
+			}
+
+			// Function to draw ticks for year labels on graph. Length of tick is
+			// (2 * size) pixels. Ticks are drawn radially from center.
+			// y is year to draw at.
+			function drawTick (y, size) {
+				var year = scaledYear(y);
+				var inner = plotAngleRadius(year, graphRadius - size, centerX, centerY);
+				var outer = plotAngleRadius(year, graphRadius + size, centerX, centerY);
+
+				var tickFunct = d3.line()
+					.x(function (d) { return d[0]; })
+					.y(function (d) { return d[1]; });
+				var tick = tickFunct([inner, outer]);
+
+				svg.append("path")
+				.attr("d", tick)
+				.attr("stroke", "white")
+				.attr("stroke-width", 2)
+				.attr("fill", "none");
+
+			}
+
+			// Function to draw all ticks and labels, based on place on graph, size of
+			// ticks, and increments
+			function drawTicks () {
+				// Main tick + label every 100 years
+				for (var y = 1200; y <= 2500; y += 100) {
+					drawTick(y, 15);
+					drawLabels(y, 20);
+				}
+				// Minor tick every 25 years, not including [1900, 2000]
+				for (var y = 1200; y < 1900; y += 25) {
+					drawTick(y, 8);
+				}
+				// Minor tick every 25 years, not including [1900, 2000]
+				for (var y = 2000; y <= 2500; y += 25) {
+					drawTick(y, 8);
+				}
+				// Minor tick + label every 10 years, only [1900, 2000]
+				for (var y = 1910; y <= 1990; y += 10) {
+					drawTick(y, 8);
+					drawLabels(y, 13);
+				}
+				// Minor tick every 5 years, only [1900, 2000]
+				for (var y = 1905; y <= 1995; y += 5) {
+					drawTick(y, 5);
+				}
+			}
+
+			// Helper function to draw the color key in key svg at bottom of page.
+			// Adds rectangles with appropriate color and labels them
+			function drawColorsAndLabels() {
+				var widthCounter = .05;
+				var counter = 0;
+
+				methodsOfTravel.forEach(function (method) {
+					if (counter < 4) {
+						key.append("rect")
+							.attr("x", widthCounter * keyWidth)
+							.attr("y", .3 * keyHeight)
+							.attr("height", .2 * keyHeight)
+							.attr("width", .05 * keyWidth)
+							.style("fill", colors[counter])
+							.style("stroke", "white")
+							.style("stroke-width", lineWidth);
+						key.append("text")
+							.text(method)
+							.attr("x", (widthCounter + .07)*keyWidth)
+							.attr("y", .4*keyHeight)
+							.attr("text-anchor", "start")
+							.attr("alignment-baseline", "middle")
+							.style("font-size", 17);
+						widthCounter += .19;
+					}
+					else {
+						widthCounter -= .19;
+						key.append("rect")
+							.attr("x", widthCounter*keyWidth)
+							.attr("y", .6*keyHeight)
+							.attr("height", .2*keyHeight)
+							.attr("width", .05*keyWidth)
+							.style("fill", colors[counter])
+							.style("stroke", "white")
+							.style("stroke-width", lineWidth);
+						key.append("text")
+							.text(method)
+							.attr("x", (widthCounter + .07)*keyWidth)
+							.attr("y", .7*keyHeight)
+							.attr("text-anchor", "start")
+							.attr("alignment-baseline", "middle")
+							.style("font-size", 17);
+					}
+					counter += 1;
+				});
+				for (var j = 0; j < 6; j++) {
+					console.log(j);
+					key.append("line")
+						.attr("x1", .84*keyWidth)
+						.attr("y1", (.245 + j * 0.12) * keyHeight)
+						.attr("x2", .91*keyWidth)
+						.attr("y2", (.245 + j * 0.12) * keyHeight)
+						.attr("stroke", "white")
+						.attr("stroke-width", (j / 0.514) + 1);
+					key.append("text")
+						.text(5 + j + ".0")
+						.attr("x", 0.94 * keyWidth)
+						.attr("y", (.245 + j * 0.12) * keyHeight)
+						.attr("text-anchor", "start")
+						.attr("alignment-baseline", "middle");
+				}
+			}
+
+			// Main function to draw key, adds labels and makes main key rectangle
+			// Calls drawColorsAndLabels()
+			function drawColorKey() {
+				key.append("text")
+					.text("METHOD OF TIME TRAVEL")
+					.attr("x", 2 * keyWidth / 5)
+					.attr("y", .13*keyHeight)
+					.attr("text-anchor", "middle")
+					.attr("alignment-baseline", "middle")
+					.style("font-size", 20);
+
+				key.append("rect")
+					.attr("x", 1)
+					.attr("y", 1)
+					.attr("height", keyHeight - lineWidth)
+					.attr("width", keyWidth - lineWidth)
+					.style("fill", "none")
+					.style("stroke", "white")
+					.style("stroke-width", lineWidth);
+
+				key.append("line")
+					.attr("x1", .79*keyWidth)
+					.attr("y1", 0.07 * keyHeight)
+					.attr("x2", .79*keyWidth)
+					.attr("y2", 0.93 * keyHeight)
+					.attr("stroke", "white")
+					.attr("stroke-width", lineWidth);
+
+				key.append("text")
+					.text("IMDB RATINGS")
+					.attr("x", 9 * keyWidth / 10)
+					.attr("y", .13*keyHeight)
+					.attr("text-anchor", "middle")
+					.attr("alignment-baseline", "middle")
+					.style("font-size", 20);
+
+				drawColorsAndLabels();
+			}
+
+			// Takes an input from raw data set and maps it to the apropriate index of
+			// methodsOfTravel array.
+			// Input is eventually used to get color from corresponding color array
+			function getColor(input) {
+				input = input.toLowerCase()
+				if (input == "mystery force" || input == "mysterious force of nature") {
+					return methodsOfTravel.indexOf("Mystery Force")
+				}
+				else if (input == "machine / tech" || input == "time machine") {
+					return methodsOfTravel.indexOf("Machine/Tech")
+				}
+				else if (input == "car") {
+					return methodsOfTravel.indexOf("Car")
+				}
+				else if (input == "alien tech") {
+					return methodsOfTravel.indexOf("Alien Tech")
+				}
+				else if (input == "slingshot") {
+					return methodsOfTravel.indexOf("Slingshot")
+				}
+				else if (input == "freezing") {
+					return methodsOfTravel.indexOf("Freezing")
+				}
+				else if (input == "power of mind") {
+					return methodsOfTravel.indexOf("Mind Power")
+				}
+				else {
+					return methodsOfTravel.indexOf("Unknown")
+				}
+			}
+
+			// Function used in .tsv function to parse data and format it appropriately.
+			// Converts years and ratings into numbers, and converts the method string to
+			// color through the helper function getColor()
+			function parseLine (line) {
+				line.From = Number(line.From);
+				line.To = Number(line.To);
+				line.Rating = Number(line.Rating);
+				line.Color = getColor(line.Method)
+				return line;
+			}
+
+			// Main function to display data on the graph. Gets appropriate start and end
+			// points using plotYear() function, and draws a quadratic path in between.
+			// Uses the appropriate color based on method and stroke-wdith based on rating.
+			function displayData(data) {
+				var x1;
+				var x1;
+				var y1;
+				var y2;
+				var path;
+				data.forEach(function (y) {
+					x1 = plotYear(y.From)[0];
+					y1 = plotYear(y.From)[1];
+					x2 = plotYear(y.To)[0];
+					y2 = plotYear(y.To)[1];
+					if (x1 == 0 || y1 == 0 || x2 == 0 || y2 == 0) { console.log("error"); return; }
+					else {
+						path = d3.path();
+						path.moveTo(x1,y1);
+						path.quadraticCurveTo((x1+x2)/2.7,(y1+y2)/2.7,x2,y2);
+						path = svg.append("path")
+							.attr("d", path.toString())
+							.style("stroke", colors[y.Color])
+							.style("fill", "none")
+							.attr("stroke-width", popularityScale(y.Rating));
+					}
+				});
+			}
+
+		</script>
+	</svg>
 </body>
 </html>
